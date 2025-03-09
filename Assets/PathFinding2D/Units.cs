@@ -10,20 +10,22 @@ public class Units : MonoBehaviour
 
     private void Start()
     {
-        PathFinderManager.RequestPath(transform.position, target.position, OnPathFound);
+        PathFinderManager.RequestPath((Vector2)transform.position, (Vector2)target.position, OnPathFound);
     }
-    public void OnPathFound(Vector2[] newPAth, bool ispathSuccesfull)
+    public void OnPathFound(Vector2[] newPath, bool ispathSuccesfull)
     {
         if (ispathSuccesfull)
         {
-            path = newPAth;
+            path = newPath;
             StopCoroutine("FollowPath");
             StartCoroutine("FollowPath");
         }
     }
     IEnumerator FollowPath()
     {
+        if(path.Length == 0) yield break;
         Vector2 currentPoint = path[0];
+        targetindex = 0;
 
         while (true)
         {

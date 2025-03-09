@@ -1,6 +1,6 @@
-using UnityEngine;
-using System.Collections.Generic;
 using Sirenix.OdinInspector;
+using System.Collections.Generic;
+using UnityEngine;
 
 public class GridSystem : MonoBehaviour
 {
@@ -15,11 +15,10 @@ public class GridSystem : MonoBehaviour
     int gridWidth;
     int gridHeight;
     private bool started = false;
-    public bool OnlyDisplayPathGizmos = false;
+    public bool DisplaGridGizmos = false;
 
-    public List<Node> path;
     [Button("Generate Grid")]
-    private void Start()
+    private void Awake()
     {
         started = true;
         gridWidth = Mathf.FloorToInt(width / cellSize);
@@ -52,17 +51,9 @@ public class GridSystem : MonoBehaviour
         Gizmos.DrawCube(topLeft, Vector3.one * (cellSize-0.05f));
         if (!started) return;
         Node _player = PointToNode(player.position);
-        if (path != null && OnlyDisplayPathGizmos)
+        if(grid != null && DisplaGridGizmos)
         {
             foreach (Node n in grid)
-            {
-                Gizmos.color = Color.black;
-                if(path.Contains(n))Gizmos.DrawCube(n.worldPosition, Vector3.one * Mathf.Max((cellSize - 0.1f), 0.04f));
-            }
-        }
-        else
-        {
-            foreach(Node n in grid)
             {
                 Gizmos.color = n.walkable ? Color.white : Color.magenta;
                 if (n == _player && _player != null)
@@ -72,6 +63,8 @@ public class GridSystem : MonoBehaviour
                 Gizmos.DrawCube(n.worldPosition, Vector3.one * Mathf.Max((cellSize - 0.1f), 0.04f));
             }
         }
+        
+
         
     }
     private Vector2 CalculateTopLeft()

@@ -1,29 +1,36 @@
 using UnityEngine;
 using System.Collections.Generic;
+using Sirenix.OdinInspector;
 
 public class GridSystem : MonoBehaviour
 {
     [Header("Grid Settings")]
     [SerializeField] private int height = 10;
     [SerializeField] private int width = 10;
-    [SerializeField] private float cellSize = 1f;
+    [SerializeField][Range(0.62f,3f)] private float cellSize = 1f;
     [SerializeField] private LayerMask _unwalkable;
     [SerializeField] private Transform player;
     Node[,] grid;
     private Vector2 topLeft;
-    
+    int gridWidth;
+    int gridHeight;
 
+    public List<Node> path;
+    [Button("Generate Grid")]
     private void Start()
     {
-        grid = new Node[width, height];
+        gridWidth = Mathf.FloorToInt(width / cellSize);
+        gridHeight = Mathf.FloorToInt(height / cellSize);
+        grid = new Node[gridWidth, gridHeight];
         topLeft = CalculateTopLeft();
         GenerateGrid();
     }
+    
     private void GenerateGrid()
     {
-        for(int x = 0; x < width; x++)
+        for(int x = 0; x < gridWidth; x++)
         {
-            for(int y = 0; y < height; y++)
+            for(int y = 0; y < gridHeight; y++)
             {
                 Vector2 worldPoint = new(topLeft.x + x * cellSize, topLeft.y - y * cellSize);
                 bool walkable = !Physics2D.OverlapCircle(worldPoint,cellSize/2,_unwalkable);
@@ -31,11 +38,11 @@ public class GridSystem : MonoBehaviour
             }
         }
     }
-    private void OnDrawGizmosSelected()
+    private void OnDrawGizmos()
     {
         Gizmos.DrawWireCube(transform.position, new Vector2(width, height) * cellSize);
         Gizmos.color = Color.yellow;
-        Gizmos.DrawCube(topLeft, Vector3.one * (cellSize-0.1f));
+        Gizmos.DrawCube(topLeft, Vector3.one * (cellSize-0.05f));
         Node _player = PointToNode(player.position);
         foreach (Node n in grid)
         {
@@ -44,19 +51,22 @@ public class GridSystem : MonoBehaviour
             {
                 Gizmos.color = Color.green;
             }
-            Gizmos.DrawCube(n.worldPosition, Vector3.one * (cellSize - 0.1f));
+            if (path != null&&path.Contains(n))Gizmos.color = Color.black;
+            Gizmos.DrawCube(n.worldPosition, Vector3.one * Mathf.Max((cellSize - 0.1f),0.04f));
         }
     }
     private Vector2 CalculateTopLeft()
     {
-        float x = transform.position.x - ((cellSize / 2) * (width/2-1));
-        float y = transform.position.y + ((cellSize / 2) * (height/2 -1));
+        float x = transform.position.x - (width/2);
+        float y = transform.position.y + (height/2);
         return new Vector2(x, y);
     }
     public Node PointToNode(Vector2 point)
     {
-        int x = Mathf.RoundToInt((point.x - topLeft.x) / cellSize);
-        int y = Mathf.RoundToInt((topLeft.y - point.y) / cellSize);
+        int x = Mathf.FloorToInt((point.x - topLeft.x) / cellSize);
+        int y = Mathf.FloorToInt((topLeft.y - point.y) / cellSize);
+        x = Mathf.Clamp(x, 0, gridWidth-1);
+        y = Mathf.Clamp(y, 0, gridHeight-1);
         return grid[x, y];
     }
     public List<Node> GetNeighbours(Node node)

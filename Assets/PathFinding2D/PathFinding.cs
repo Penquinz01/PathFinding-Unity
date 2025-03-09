@@ -4,12 +4,18 @@ using System.Collections.Generic;
 public class PathFinding : MonoBehaviour
 {
     GridSystem grid;
+    public Transform seekr;
+    public Transform target;
 
     private void Awake()
     {
         grid = GetComponent<GridSystem>();
     }
-    
+    private void Update()
+    {
+        FindPath(seekr.position, target.position);
+    }
+
     void FindPath(Vector2 startPos,Vector2 targetPos)
     {
         Node startNode = grid.PointToNode(startPos);
@@ -34,6 +40,7 @@ public class PathFinding : MonoBehaviour
 
             if(currentNode == targetNode)
             {
+                RetracePath(startNode, targetNode);
                 return;
             }
             foreach (Node neighbour in grid.GetNeighbours(currentNode))
@@ -54,6 +61,7 @@ public class PathFinding : MonoBehaviour
                 }
             }
         }
+        Debug.Log("No Path is Found");
     }
     int GetDistance(Node nodeA,Node nodeB)
     {
@@ -64,5 +72,17 @@ public class PathFinding : MonoBehaviour
             return 14 * distY + 10 * (distX - distY);
         }
         return 14 * distX + 10 * (distY - distX);
+    }
+    void RetracePath(Node start,Node end)
+    {
+        List<Node> path = new List<Node>();
+        Node currentNode = end;
+        while (currentNode != null) {
+            path.Add(currentNode);
+            currentNode = currentNode.parent;
+        }
+        path.Reverse();
+        grid.path = path;
+        Debug.Log(path);
     }
 }

@@ -36,10 +36,22 @@ public class PathFinding : MonoBehaviour
             {
                 return;
             }
-            foreach (Node node in grid.GetNeighbours(currentNode))
+            foreach (Node neighbour in grid.GetNeighbours(currentNode))
             {
-                if (ClosedSet.Contains(node) || !node.walkable) continue;
+                if (ClosedSet.Contains(neighbour) || !neighbour.walkable) continue;
+
+                int newMovementCostToNeighbour = currentNode.GCost + GetDistance(currentNode, neighbour);
+                if (newMovementCostToNeighbour < neighbour.GCost || !Openset.Contains(neighbour))
+                {
+                    neighbour.GCost = newMovementCostToNeighbour;
+                    neighbour.HCost = GetDistance(neighbour, targetNode);
+                    neighbour.parent = currentNode;
                     
+                    if (!Openset.Contains(neighbour))
+                    {
+                        Openset.Add(neighbour);
+                    }
+                }
             }
         }
     }

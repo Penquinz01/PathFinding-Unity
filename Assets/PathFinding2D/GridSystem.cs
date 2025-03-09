@@ -15,6 +15,7 @@ public class GridSystem : MonoBehaviour
     int gridWidth;
     int gridHeight;
     private bool started = false;
+    public bool OnlyDisplayPathGizmos = false;
 
     public List<Node> path;
     [Button("Generate Grid")]
@@ -26,6 +27,10 @@ public class GridSystem : MonoBehaviour
         grid = new Node[gridWidth, gridHeight];
         topLeft = CalculateTopLeft();
         GenerateGrid();
+    }
+    public int MaxGridSize
+    {
+        get => gridHeight * gridWidth;
     }
     
     private void GenerateGrid()
@@ -47,16 +52,27 @@ public class GridSystem : MonoBehaviour
         Gizmos.DrawCube(topLeft, Vector3.one * (cellSize-0.05f));
         if (!started) return;
         Node _player = PointToNode(player.position);
-        foreach (Node n in grid)
+        if (path != null && OnlyDisplayPathGizmos)
         {
-            Gizmos.color = n.walkable ? Color.white : Color.magenta;
-            if (n == _player && _player !=null)
+            foreach (Node n in grid)
             {
-                Gizmos.color = Color.green;
+                Gizmos.color = Color.black;
+                if(path.Contains(n))Gizmos.DrawCube(n.worldPosition, Vector3.one * Mathf.Max((cellSize - 0.1f), 0.04f));
             }
-            if (path != null&&path.Contains(n))Gizmos.color = Color.black;
-            Gizmos.DrawCube(n.worldPosition, Vector3.one * Mathf.Max((cellSize - 0.1f),0.04f));
         }
+        else
+        {
+            foreach(Node n in grid)
+            {
+                Gizmos.color = n.walkable ? Color.white : Color.magenta;
+                if (n == _player && _player != null)
+                {
+                    Gizmos.color = Color.green;
+                }
+                Gizmos.DrawCube(n.worldPosition, Vector3.one * Mathf.Max((cellSize - 0.1f), 0.04f));
+            }
+        }
+        
     }
     private Vector2 CalculateTopLeft()
     {

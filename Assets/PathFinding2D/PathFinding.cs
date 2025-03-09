@@ -1,5 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Diagnostics;
+using Sirenix.OdinInspector;
 
 public class PathFinding : MonoBehaviour
 {
@@ -11,35 +13,33 @@ public class PathFinding : MonoBehaviour
     {
         grid = GetComponent<GridSystem>();
     }
-    private void Update()
+    [Button("FindPath")]
+    private void GenratePath()
     {
         FindPath(seekr.position, target.position);
     }
 
     void FindPath(Vector2 startPos,Vector2 targetPos)
     {
+        print("Started");
+        Stopwatch sw = new Stopwatch();
+        sw.Start();
         Node startNode = grid.PointToNode(startPos);
         Node targetNode = grid.PointToNode(targetPos);
 
-        List<Node> Openset = new List<Node>();
+        Heap<Node> Openset = new Heap<Node>(grid.MaxGridSize);
         HashSet<Node> ClosedSet = new HashSet<Node>();
         Openset.Add(startNode);
 
         while (Openset.Count > 0)
         {
-            Node currentNode = Openset[0];
-            for (int i = 1; i < Openset.Count; i++)
-            {
-                if (Openset[i].FCost < currentNode.FCost || Openset[i].FCost==currentNode.FCost && Openset[i].HCost<currentNode.HCost)
-                {
-                    currentNode = Openset[i];
-                }
-            }
-            Openset.Remove(currentNode);
+            Node currentNode = Openset.RemoveFirst();
             ClosedSet.Add(currentNode);
 
             if(currentNode == targetNode)
             {
+                sw.Stop();
+                print("path found: " + sw.ElapsedMilliseconds + "ms");
                 RetracePath(startNode, targetNode);
                 return;
             }
@@ -61,7 +61,6 @@ public class PathFinding : MonoBehaviour
                 }
             }
         }
-        Debug.Log("No Path is Found");
     }
     int GetDistance(Node nodeA,Node nodeB)
     {
@@ -83,6 +82,5 @@ public class PathFinding : MonoBehaviour
         }
         path.Reverse();
         grid.path = path;
-        Debug.Log(path);
     }
 }

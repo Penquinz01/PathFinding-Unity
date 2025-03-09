@@ -12,7 +12,7 @@ public class Heap<T> where T : IHeapItem<T>
         items = new T[maxSize];
     }
 
-    public void AddItems(T item)
+    public void Add(T item)
     {
         item.HeapIndex = currentItemCount;
         items[currentItemCount] = item;
@@ -44,8 +44,20 @@ public class Heap<T> where T : IHeapItem<T>
         items[0] = items[currentItemCount];
         items[0].HeapIndex = 0;
         SortDown(items[0]);
+        return firstItem;
     }
-
+    public void UpdateItem(T item)
+    {
+        SortUp(item);
+    }
+    public int Count
+    {
+        get { return currentItemCount; }
+    }
+    public bool Contains(T item)
+    {
+        return Equals(items[item.HeapIndex], item);
+    }
     void SortDown(T item)
     {
         while (true)

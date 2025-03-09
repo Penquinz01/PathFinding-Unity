@@ -39,8 +39,18 @@ public class PathFinding : MonoBehaviour
             foreach (Node node in grid.GetNeighbours(currentNode))
             {
                 if (ClosedSet.Contains(node) || !node.walkable) continue;
-
+                    
             }
         }
+    }
+    int GetDistance(Node nodeA,Node nodeB)
+    {
+        int distX = Mathf.Abs(nodeA.gridX - nodeB.gridX);
+        int distY= Mathf.Abs(nodeA.gridY - nodeB.gridY);
+        if (distX > distY)
+        {
+            return 14 * distY + 10 * (distX - distY);
+        }
+        return 14 * distX + 10 * (distY - distX);
     }
 }

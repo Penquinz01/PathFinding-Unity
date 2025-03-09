@@ -14,11 +14,13 @@ public class GridSystem : MonoBehaviour
     private Vector2 topLeft;
     int gridWidth;
     int gridHeight;
+    private bool started = false;
 
     public List<Node> path;
     [Button("Generate Grid")]
     private void Start()
     {
+        started = true;
         gridWidth = Mathf.FloorToInt(width / cellSize);
         gridHeight = Mathf.FloorToInt(height / cellSize);
         grid = new Node[gridWidth, gridHeight];
@@ -43,11 +45,12 @@ public class GridSystem : MonoBehaviour
         Gizmos.DrawWireCube(transform.position, new Vector2(width, height) * cellSize);
         Gizmos.color = Color.yellow;
         Gizmos.DrawCube(topLeft, Vector3.one * (cellSize-0.05f));
+        if (!started) return;
         Node _player = PointToNode(player.position);
         foreach (Node n in grid)
         {
             Gizmos.color = n.walkable ? Color.white : Color.magenta;
-            if (n == _player)
+            if (n == _player && _player !=null)
             {
                 Gizmos.color = Color.green;
             }

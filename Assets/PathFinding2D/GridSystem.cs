@@ -16,6 +16,7 @@ public class GridSystem : MonoBehaviour
     int gridHeight;
     private bool started = false;
     public bool DisplaGridGizmos = false;
+    public List<Node> path = new List<Node>();
 
     [Button("Generate Grid")]
     private void Awake()
@@ -59,6 +60,10 @@ public class GridSystem : MonoBehaviour
                 if (n == _player && _player != null)
                 {
                     Gizmos.color = Color.green;
+                }
+                if (path != null && path.Contains(n))
+                {
+                    Gizmos.color = Color.black;
                 }
                 Gizmos.DrawCube(n.worldPosition, Vector3.one * Mathf.Max((cellSize - 0.1f), 0.04f));
             }

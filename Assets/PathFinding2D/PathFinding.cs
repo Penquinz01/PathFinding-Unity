@@ -22,6 +22,7 @@ public class PathFinding : MonoBehaviour
         sw.Start();
         Vector2[] waypoints = new Vector2[0];
         bool pathSuccess = false;
+        grid.path.Clear();
         Node startNode = grid.PointToNode(startPos);
         Node targetNode = grid.PointToNode(targetPos);
         if(startNode.walkable && targetNode.walkable)
@@ -46,7 +47,7 @@ public class PathFinding : MonoBehaviour
                 {
                     if (ClosedSet.Contains(neighbour) || !neighbour.walkable) continue;
 
-                    int newMovementCostToNeighbour = currentNode.GCost + GetDistance(currentNode, neighbour);
+                    int newMovementCostToNeighbour = currentNode.GCost + GetDistance(currentNode, neighbour) + neighbour.movementPenalty;
                     if (newMovementCostToNeighbour < neighbour.GCost || !Openset.Contains(neighbour))
                     {
                         neighbour.GCost = newMovementCostToNeighbour;
@@ -56,6 +57,10 @@ public class PathFinding : MonoBehaviour
                         if (!Openset.Contains(neighbour))
                         {
                             Openset.Add(neighbour);
+                        }
+                        else
+                        {
+                            Openset.UpdateItem(neighbour);
                         }
                     }
                 }
@@ -83,10 +88,11 @@ public class PathFinding : MonoBehaviour
     {
         List<Node> path = new List<Node>();
         Node currentNode = end;
-        while (currentNode != null) {
+        while (currentNode != start) {
             path.Add(currentNode);
             currentNode = currentNode.parent;
         }
+        path.Add(start);
         Vector2[] waypoints = SimplifyPath(path);
         path.Reverse();
         grid.path = path;
@@ -114,6 +120,7 @@ public class PathFinding : MonoBehaviour
 
     public void StartFindPath(Vector2 pathStart, Vector2 pathEnd)
     {
+        StopCoroutine("FindPath");
         StartCoroutine(FindPath(pathStart,pathEnd));
     }
 }

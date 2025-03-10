@@ -1,3 +1,4 @@
+using Sirenix.OdinInspector;
 using System.Collections;
 using UnityEngine;
 
@@ -8,7 +9,8 @@ public class Units : MonoBehaviour
     Vector2[] path;
     int targetindex;
 
-    private void Start()
+    [Button("Find Path")]
+    private void FindPath()
     {
         PathFinderManager.RequestPath((Vector2)transform.position, (Vector2)target.position, OnPathFound);
     }
@@ -37,7 +39,6 @@ public class Units : MonoBehaviour
             {
                 yield break;
             }
-            Debug.Log(path[targetindex]);
             currentPoint = path[targetindex];
             transform.position = Vector2.MoveTowards(transform.position, currentPoint,speed*Time.deltaTime);
             yield return null;

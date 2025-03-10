@@ -11,12 +11,14 @@ public class Node : IHeapItem<Node>
     public int gridY;
     public Node parent;
     int heapIndex;
-    public Node(bool walkable, Vector2 worldPosition,int gridX,int gridY)
+    public int movementPenalty;
+    public Node(bool walkable, Vector2 worldPosition,int gridX,int gridY,int penalty)
     {
         this.walkable = walkable;
         this.worldPosition = worldPosition;
         this.gridX = gridX;
         this.gridY = gridY;
+        movementPenalty = penalty;
     }
 
     public int FCost

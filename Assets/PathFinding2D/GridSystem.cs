@@ -10,13 +10,16 @@ public class GridSystem : MonoBehaviour
     [SerializeField][Range(0.62f,3f)] private float cellSize = 1f;
     [SerializeField] private LayerMask _unwalkable;
     [SerializeField] private Transform player;
+    public TerrainType[] walkableRegion;
     Node[,] grid;
     private Vector2 topLeft;
     int gridWidth;
     int gridHeight;
     private bool started = false;
     public bool DisplaGridGizmos = false;
-    public List<Node> path = new List<Node>();
+    public List<Node> path = new();
+    LayerMask walkableMask;
+    Dictionary<int,int> walkableRegionDictionary = new Dictionary<int,int>();
 
     [Button("Generate Grid")]
     private void Awake()
@@ -26,11 +29,16 @@ public class GridSystem : MonoBehaviour
         gridHeight = Mathf.FloorToInt(height / cellSize);
         grid = new Node[gridWidth, gridHeight];
         topLeft = CalculateTopLeft();
+        foreach(TerrainType region in walkableRegion)
+        {
+            walkableMask.value |= region.terrainMask.value;
+            walkableRegionDictionary.Add((int)Mathf.Log(region.terrainMask.value,2),region.terrainPenalty);
+        }
         GenerateGrid();
     }
     public int MaxGridSize
     {
-        get => gridHeight * gridWidth;
+        get => gridHeight * gridWidth* 2;
     }
     
     private void GenerateGrid()
@@ -41,7 +49,19 @@ public class GridSystem : MonoBehaviour
             {
                 Vector2 worldPoint = new(topLeft.x + x * cellSize, topLeft.y - y * cellSize);
                 bool walkable = !Physics2D.OverlapCircle(worldPoint,cellSize/2,_unwalkable);
-                grid[x, y] = new Node(walkable, worldPoint,x,y);
+                int movementPenalty = 0;
+
+                if (walkable) {
+                    Collider2D col = Physics2D.OverlapCircle(worldPoint, 0.1f, walkableMask);
+                    if (col!= null)
+                    {
+                        Debug.Log("Why");
+                        walkableRegionDictionary.TryGetValue(col.gameObject.layer, out movementPenalty);
+                        Debug.Log(movementPenalty);
+                    }
+                }
+
+                grid[x, y] = new Node(walkable, worldPoint,x,y,movementPenalty);
             }
         }
     }
@@ -60,10 +80,6 @@ public class GridSystem : MonoBehaviour
                 if (n == _player && _player != null)
                 {
                     Gizmos.color = Color.green;
-                }
-                if (path != null && path.Contains(n))
-                {
-                    Gizmos.color = Color.black;
                 }
                 Gizmos.DrawCube(n.worldPosition, Vector3.one * Mathf.Max((cellSize - 0.1f), 0.04f));
             }
@@ -106,5 +122,11 @@ public class GridSystem : MonoBehaviour
             }
         }
         return neighbours;
+    }
+    [System.Serializable]
+    public class TerrainType
+    {
+        public LayerMask terrainMask;
+        public int terrainPenalty;
     }
 }

@@ -21,7 +21,6 @@ public class GridSystem : MonoBehaviour
     LayerMask walkableMask;
     Dictionary<int,int> walkableRegionDictionary = new Dictionary<int,int>();
 
-    [Button("Generate Grid")]
     private void Awake()
     {
         started = true;
@@ -33,6 +32,7 @@ public class GridSystem : MonoBehaviour
         {
             walkableMask.value |= region.terrainMask.value;
             walkableRegionDictionary.Add((int)Mathf.Log(region.terrainMask.value,2),region.terrainPenalty);
+            Debug.Log(region.terrainPenalty);
         }
         GenerateGrid();
     }
@@ -52,11 +52,11 @@ public class GridSystem : MonoBehaviour
                 int movementPenalty = 0;
 
                 if (walkable) {
-                    Collider2D col = Physics2D.OverlapCircle(worldPoint, 0.1f, walkableMask);
-                    if (col!= null)
+                    RaycastHit2D hit = Physics2D.Raycast(new Vector3(worldPoint.x, worldPoint.y, 0) + Vector3.back * 50, Vector3.forward, 100, walkableMask);
+                    if (hit.collider!=null)
                     {
                         Debug.Log("Why");
-                        walkableRegionDictionary.TryGetValue(col.gameObject.layer, out movementPenalty);
+                        walkableRegionDictionary.TryGetValue(hit.collider.gameObject.layer, out movementPenalty);
                         Debug.Log(movementPenalty);
                     }
                 }

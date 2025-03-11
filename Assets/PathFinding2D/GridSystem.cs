@@ -32,7 +32,6 @@ public class GridSystem : MonoBehaviour
         {
             walkableMask.value |= region.terrainMask.value;
             walkableRegionDictionary.Add((int)Mathf.Log(region.terrainMask.value,2),region.terrainPenalty);
-            Debug.Log(region.terrainPenalty);
         }
         GenerateGrid();
     }
@@ -55,9 +54,7 @@ public class GridSystem : MonoBehaviour
                     RaycastHit2D hit = Physics2D.Raycast(new Vector3(worldPoint.x, worldPoint.y, 0) + Vector3.back * 50, Vector3.forward, 100, walkableMask);
                     if (hit.collider!=null)
                     {
-                        Debug.Log("Why");
                         walkableRegionDictionary.TryGetValue(hit.collider.gameObject.layer, out movementPenalty);
-                        Debug.Log(movementPenalty);
                     }
                 }
 
@@ -128,5 +125,13 @@ public class GridSystem : MonoBehaviour
     {
         public LayerMask terrainMask;
         public int terrainPenalty;
+    }
+    [Button("Print all nodes walkPenalty")]
+    public void PrintPenalty(){
+        foreach(Node n in grid)
+        {
+            Debug.Log(n.movementPenalty + " " + n.worldPosition);
+        }
+
     }
 }
